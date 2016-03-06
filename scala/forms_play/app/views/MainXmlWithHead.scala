@@ -9,6 +9,8 @@ trait MainXmlWithHead extends MainXml {
   override def head(title: String = "")(implicit lang: String = "en") = {
     <head>
       <title>ShareCoop</title>
+
+<!-- TODO copied from semantic_forms -->
       <meta http-equiv="Content-type" content="text/html; charset=UTF-8"></meta>
 
       <link rel="shortcut icon" type="image/png" href={ routes.Assets.at("images/favicon.png").url }/>
@@ -55,4 +57,14 @@ trait MainXmlWithHead extends MainXml {
     </head>
   }
 
+  val prefix = "urn:ShareCoop/vocab#"
+
+  override def mainPageHeader(implicit lang: String) =
+	<div class="container">
+		<div class="row">
+			<h3>Bienvenue à Share.Coop</h3>
+		</div>
+    Créer votre compte Share.Coop
+    { creationButton( prefix + "Prospect", "Créer") }
+  </div>
 }
