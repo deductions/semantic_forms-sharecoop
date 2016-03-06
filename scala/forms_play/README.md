@@ -1,6 +1,18 @@
 Play! framework implementations
 ---
 
+# Explication
+
+Ce fork qui ne sera jamais fusionné (pas de Pull Request). C'est un moyen de pallier le fait qu'on ne peut pas (AFAIK) redéfinir des éléments d'un projet Play à partir d'un projet indépendant.
+
+Pour mettre à jour par rapport à semantic\_forms :
+
+https://help.github.com/articles/syncing-a-fork/
+
+Et il faut d'abord faire une fois pour toutes à chaque répertoire issu d'un git clone:
+https://help.github.com/articles/configuring-a-remote-for-a-fork/
+	git remote add upstream https://github.com/jmvanel/semantic_forms.git
+
 # Introduction
 Here is a web application with Play! framework around the [form generator](../forms/README.md) that does:
 - navigation on the LOD (Linked Open Data) cloud,
