@@ -63,6 +63,11 @@ trait MainXmlWithHead extends MainXml {
 	<div class="container">
 		<div class="row">
 			<h3>Bienvenue à Share.Coop</h3>
+			Voulez vous jouer à Immo.Bingo ?
+			<br/>
+			Jeu gratuit et sans engagement
+			<br/>
+			<a href="http://share.coop">Share.Coop</a>
 		</div>
     Créer votre compte Share.Coop
     { creationButton( prefix + "Prospect", "Créer") }
