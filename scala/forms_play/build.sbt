@@ -1,9 +1,9 @@
-organization := "deductions"
-name := "semantic_forms_play"
+organization := "sharecoop"
+name := "sharecoop"
 version := "1.0-SNAPSHOT"
 
 lazy val semantic_forms =  RootProject(file("../forms"))
-lazy val semantic_forms_play = (project in file("."))
+lazy val sharecoop = (project in file("."))
         .dependsOn(semantic_forms)
 	.enablePlugins(PlayScala)
 
@@ -12,7 +12,6 @@ javacOptions ++= Seq("-source","1.7", "-target","1.7")
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % Test
 libraryDependencies += "org.scalatestplus" %% "play" % "1.4.0" % Test
-// libraryDependencies += specs2 % Test
 
 sources in (Compile, doc) := Seq.empty
 publishArtifact in (Compile, packageDoc) := false

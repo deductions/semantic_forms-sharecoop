@@ -1,8 +1,9 @@
 #!/bin/bash
 
 echo "update semantic_forms Play! server when code has changed"
-SRC=$HOME/src/semantic_forms/scala/forms_play/
-APP=semantic_forms_play
+SRC=$HOME/src/semantic_forms-sharecop/scala/forms_play/
+APP=sharecoop
+
 APPVERS=${APP}-1.0-SNAPSHOT
 SBT=sbt
 
@@ -21,8 +22,9 @@ mv ${APPVERS} ${APPVERS}_OLD
 unzip $SRC/target/universal/${APPVERS}.zip
 
 cd ${APPVERS}
-ln -s ../TDBsandbox TDB
+ln -s ../TDBsc TDB
+ln -s ../TDB2sc TDB2
 
-PORT=9111
+PORT=9333
 echo starting the server on port $PORT
 nohup bin/${APP} -J-Xmx100M -J-server -Dhttp.port=$PORT &
