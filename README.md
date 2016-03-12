@@ -1,6 +1,10 @@
 semantic forms
 ==============
 
+# Explications projet ShareCoop
+Cliquer ici:
+[forms\_play/README.md](scala/forms_play/README.md)
+
 [![Join the chat at https://gitter.im/jmvanel/semantic_forms](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jmvanel/semantic_forms?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Form generators leveraging semantic web standards RDF(S), OWL, SPARQL , JSON-LD , ...
