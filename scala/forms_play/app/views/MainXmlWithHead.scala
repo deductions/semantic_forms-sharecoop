@@ -63,7 +63,8 @@ trait MainXmlWithHead extends MainXml {
 	<div class="container">
 		<div class="row">
 			<h3>Bienvenue à Share.Coop</h3>
-			Voulez vous jouer à Immo.Bingo ?
+			Voulez vous jouer à Immo.Bingo et recevoir un don en 
+			<a href="http://chequesolidaire.org">Chèque solidaire?</a>
 			<br/>
 			Jeu gratuit et sans engagement
 			<br/>
