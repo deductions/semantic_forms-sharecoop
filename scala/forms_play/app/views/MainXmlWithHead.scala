@@ -11,7 +11,7 @@ trait MainXmlWithHead extends MainXml {
 	<div class="container">
 		<div class="row">
 			<h3>Bienvenue à Share.Coop</h3>
-			Voulez vous participer à Share.Coop et recevez un don en 
+			Participez à Share.Coop et recevez un don en 
 			<a href="http://chequesolidaire.org">Chèque solidaire?</a>
 			<br/>
 			Jeu gratuit et sans engagement
