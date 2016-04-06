@@ -1,15 +1,19 @@
 package deductions.runtime.user
 
+import scala.xml.Text
+import scala.util.Success
+import scala.util.Failure
 import org.w3.banana.RDF
-import deductions.runtime.services.StringSearchSPARQL
 import deductions.runtime.abstract_syntax.PreferredLanguageLiteral
+import deductions.runtime.abstract_syntax.InstanceLabelsInferenceMemory
 import deductions.runtime.html.TableViewModule
 import deductions.runtime.html.CreationFormAlgo
 import deductions.runtime.services.Configuration
-import scala.xml.Text
+import deductions.runtime.services.StringSearchSPARQL
 import deductions.runtime.utils.I18NMessages
-import deductions.runtime.abstract_syntax.InstanceLabelsInferenceMemory
+import scala.xml.NodeSeq
 
+/** Register HTML Page */
 trait RegisterPage[Rdf <: RDF, DATASET]
     extends StringSearchSPARQL[Rdf, DATASET]
     with InstanceLabelsInferenceMemory[Rdf, DATASET]
@@ -20,13 +24,21 @@ trait RegisterPage[Rdf <: RDF, DATASET]
 
   import ops._
 
-  /** display User stuff in pages */
-  def displayUser(userid: String, pageURI: String, pageLabel: String, lang: String = "en") = {
+  /** display User information in pages */
+  def displayUser(userid: String, pageURI: String, pageLabel: String,
+      lang: String = "en"): NodeSeq = {
     <div class="userInfo"> {
       if (needLogin) {
         if (userid != "") {
-          instanceLabel(Literal(userid), allNamedGraph, lang)
-          // TODO link to User profile
+          val userLabel = rdfStore.rw( dataset, {
+            instanceLabel(URI(userid), allNamedGraph, lang)
+            // TODO link to User profile
+          })
+          val displayUserLabel = userLabel match {
+            case Success(lab) => s"${I18NMessages.get("User", lang)}: $lab"
+            case Failure(e) => s"No label for user (!?): $e"
+          }
+          <div>{displayUserLabel} - <a href="/logout">logout</a></div>
         } else {
           <div>
             Anonyme

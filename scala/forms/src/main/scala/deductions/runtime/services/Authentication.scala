@@ -7,13 +7,16 @@ import org.w3.banana.FOAFPrefix
 import org.w3.banana.RDF
 import deductions.runtime.sparql_cache.RDFCacheAlgo
 import scala.util.Failure
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter
+import java.security.MessageDigest
 
-/**
+/** facade for user Authentication management;
+ *  wraps the TDB database
  * @author jmv
  */
 trait Authentication[Rdf <: RDF, DATASET] extends RDFCacheAlgo[Rdf, DATASET] {
 
-  def passwordsGraph: Rdf#Graph
+  def passwordsGraph: Rdf#MGraph
 
   import ops._
   import rdfStore.transactorSyntax._
@@ -25,7 +28,7 @@ trait Authentication[Rdf <: RDF, DATASET] extends RDFCacheAlgo[Rdf, DATASET] {
   def checkLogin(loginName: String, password: String): Boolean = {
     val databasePasswordOption = findPassword(loginName)
     databasePasswordOption match {
-      case Some(databasePassword) => databasePassword == password
+      case Some(databasePassword) => databasePassword == hashPassword(password)
       case None => false
     }
   }
@@ -43,18 +46,26 @@ trait Authentication[Rdf <: RDF, DATASET] extends RDFCacheAlgo[Rdf, DATASET] {
     }
   }
 
+  /** query for password in dedicated Authentication database */
   private def findPassword(userid: String): Option[(String)] = {
-    // query for password in dedicated Authentication database
     val userURI = URI(userid)
-    val pwds = dataset.r({
-      find(passwordsGraph, userURI, passwordPred, ANY)
+
+    val pwds = dataset3.r({
+      println( s"""find( makeIGraph(
+        $passwordsGraph
+        ), $userURI, passwordPred, ANY)""" )
+      find( makeIGraph(passwordsGraph), userURI, passwordPred, ANY)
     }).get
+    
     val pwdsl = pwds.toList
-    if (pwds.size > 0) {
-      val databasePasswordNode = pwdsl(0).subject
+    println( s"pwdsl $pwdsl" )
+    if (pwdsl.size > 0) {
+      val databasePasswordNode = pwdsl(0).objectt
       println(s"findUserAndPassword $databasePasswordNode")
       foldNode(databasePasswordNode)(
-        pw => None, b => None, l => Some(l.lexicalForm))
+        pw => Some((databasePasswordNode).toString),
+        b => None,
+        l => Some(l.lexicalForm))
     } else None
   }
 
@@ -65,7 +76,7 @@ trait Authentication[Rdf <: RDF, DATASET] extends RDFCacheAlgo[Rdf, DATASET] {
    * ?USER :password ?PASSWORD .
    */
   private def findUserAndPasswordFromEmail(email: String): Option[(String, String)] = {
-    val tryUserAndPassword = dataset.r {
+    val tryUserAndPassword = dataset3.r {
       // query for a resource having foaf:mbox email
       val mboxTriples = find(allNamedGraph, ANY, foaf.mbox, URI(email))
       val lt = mboxTriples.toList
@@ -89,26 +100,31 @@ trait Authentication[Rdf <: RDF, DATASET] extends RDFCacheAlgo[Rdf, DATASET] {
 
   /**
    * record password in database; @return user Id if success
-   * TODO makeMGraph() just makes a modifiable copy of passwordsGraph
-   * but does not change it !!!!!!!!!!!!!!!!!
    * TODO check already existing account;
+   * store hash , not password
    */
   def signin(agentURI: String, password: String): Try[String] = {
-    println("userId " + agentURI)
-    dataset.rw({
-      val mGraph = passwordsGraph.makeMGraph()
+    println("Authentication.signin: userId " + agentURI)
+    val res = dataset3.rw({
+      val mGraph = passwordsGraph
       mGraph += makeTriple(URI(agentURI), passwordPred,
-        makeLiteral(password, xsd.string))
+        makeLiteral(hashPassword(password), xsd.string))
       agentURI
     })
+    res
   }
 
-  def signinOLD(agentURI: String, password: String): Try[String] = {
+  def hashPassword(password: String): String = {
+    new HexBinaryAdapter().marshal(MessageDigest.getInstance("MD5").
+        digest(password.getBytes))
+  }
+
+  private def signinOLD(agentURI: String, password: String): Try[String] = {
 
     // check that there is an email
     println(s"signin(agentURI=$agentURI")
     val mboxTriples =
-      dataset.r({
+      dataset3.r({
         find(allNamedGraph, URI(agentURI), foaf.mbox, ANY)
       }).get
     val lt = mboxTriples.toList
@@ -119,9 +135,9 @@ trait Authentication[Rdf <: RDF, DATASET] extends RDFCacheAlgo[Rdf, DATASET] {
         bn => fromBNode(bn),
         lit => fromLiteral(lit)._1)
       println("userId " + userId)
-      val r1 = dataset.rw({
+      val r1 = dataset3.rw({
         // record password in database
-        val mGraph = passwordsGraph.makeMGraph()
+        val mGraph = passwordsGraph // .makeMGraph()
         mGraph += makeTriple(URI(agentURI), passwordPred,
           makeLiteral(password, xsd.string))
         Success(userId)

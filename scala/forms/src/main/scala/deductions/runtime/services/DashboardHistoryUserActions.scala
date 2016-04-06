@@ -48,7 +48,7 @@ trait DashboardHistoryUserActions[Rdf <: RDF, DATASET]
           <th title="Time visited by user">Time</th>
           <th title="Number of fields (triples) edited by user">Count</th>
           <th>User</th>
-          <th>IP</th>
+          <!--th>IP</th-->
 				</tr>
  			</thead><tbody>
       {
@@ -71,7 +71,7 @@ trait DashboardHistoryUserActions[Rdf <: RDF, DATASET]
                 <td>{ "action ..." }</td>
                 <td>{ dateFormat.format(date) }</td>
                 <td>{ makeStringFromLiteral(row(2)) }</td>
-                <td>{ userURI }</td>
+                <td>{ row(3) }</td>
               }</tr>
             } else <tr/>
       }

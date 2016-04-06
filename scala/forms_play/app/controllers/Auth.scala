@@ -23,8 +23,9 @@ import play.api.i18n.I18nSupport
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 
-object Auth extends Controller
-with JenaModule
+object Auth extends AuthTrait
+
+trait AuthTrait extends JenaModule
 with RDFStoreLocalJena1Provider
 with Auth[Jena, Dataset]
 with DefaultConfiguration {
@@ -34,7 +35,8 @@ with DefaultConfiguration {
   override val useTextQuery = false
 }
 
-//@Inject(val messagesApi: MessagesApi)
+/** Controller for registering account, login, logout;
+ *  see https://www.playframework.com/documentation/2.4.x/ScalaSessionFlash */
 trait Auth[Rdf <: RDF, DATASET]
 extends ApplicationFacadeImpl[Rdf, DATASET]
  with Controller
@@ -72,11 +74,6 @@ extends ApplicationFacadeImpl[Rdf, DATASET]
   /** page for login or signin */
   def login = Action { implicit request =>
     println( s"def login $request" )
-//      implicit val messages: Messages = null
-//     new play.api.i18n.Messages(  (lang: play.api.i18n.Lang, messages: play.api.i18n.MessagesApi )
-      // Implicits.applicationMessages( Lang(lang), play.api.Play.current)
-
-//    implicit val messages: play.api.i18n.Messages = new play.api.i18n.Messages( Lang("en"), messagesApi )
     val lf = views.html.login(loginForm, registerForm)
     Ok("<!DOCTYPE html>\n" + lf)
     .as("text/html; charset=utf-8")
@@ -89,13 +86,16 @@ extends ApplicationFacadeImpl[Rdf, DATASET]
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors =>
-        BadRequest("<!DOCTYPE html>\n" + views.html.login(formWithErrors, registerForm)),
+        BadRequest("<!DOCTYPE html>\n" + views.html.login(formWithErrors, registerForm))
+                    .as("text/html; charset=utf-8"),
       user => {
-      // Redirect to URL before login
+        // Redirect to URL before login
         val previousURL = request.headers.get("referer")
+        println(s"authenticate: previous url $previousURL")
         val call = previousURL match {
-          case Some(url) => Call("GET", url)
-          case None => routes.Application.index
+          case Some(url) if( ! url.endsWith("/login") &&
+              ! url.endsWith("/authenticate") ) => Call("GET", url)
+          case _ => routes.Application.index
         }
         Redirect(call).withSession(Security.username -> user._1)
       }

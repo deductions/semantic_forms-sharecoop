@@ -7,6 +7,8 @@ import java.net.URLEncoder
 import deductions.runtime.utils.URIHelpers
 
 /**
+ * Management of URI policy: how are URI created by the application
+ *
  * * @author j.m. Vanel
  */
 trait URIManagement extends Configuration
@@ -16,7 +18,10 @@ trait URIManagement extends Configuration
     makeId(instanceURIPrefix)
   }
 
-  /** make URI From String, if not already an absolute URI */
+  /**
+   * make URI From String, if not already an absolute URI,
+   *  by prepending instance URI Prefix and URL Encoding
+   */
   def makeURIFromString(objectStringFromUser: String): String = {
     if (isAbsoluteURI(objectStringFromUser))
       objectStringFromUser

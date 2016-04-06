@@ -1,73 +1,65 @@
-// https://developer.mozilla.org/fr/docs/Web/API/XMLHttpRequest
 // https://github.com/dbpedia/lookup
-// http://stackoverflow.com/questions/148901/is-there-a-better-way-to-do-optional-function-parameters-in-javascript
 // wget "http://lookup.dbpedia.org/api/search.asmx/PrefixSearch?QueryClass=&MaxHits=10&QueryString=berl" --header='Accept: application/json'
 
-var resultsCount=20;
+/* pulldown menu in <input> does show on Chrome; Opera, Android ????
+see
+https://jqueryui.com/autocomplete/
+https://github.com/RubenVerborgh/dbpedia-lookup-page
+alternate implementation, abandoned: http://blog.teamtreehouse.com/creating-autocomplete-dropdowns-datalist-element 
+TODO: translate in Scala:
+https://github.com/scala-js/scala-js-jquery
+https://www.google.fr/search?q=ajax+example+scala.js
+ */
+
+var resultsCount = 15;
 var urlReqPrefix = "http://lookup.dbpedia.org/api/search.asmx/PrefixSearch?QueryClass=&MaxHits=" +
       resultsCount + "&QueryString=" ;
-//var urlReqPrefix = "/lookup?q=";
-var req = new XMLHttpRequest();
+// var urlReqPrefix = "/lookup?q=";
 
-function dbpediaComplete( inputElement, callback ) {
-  console.log( "dbpediaComplete " + inputElement );
-  var word = inputElement.value ;
-  console.log( "dbpediaComplete word " + word );
-  req.open('GET', urlReqPrefix + word, true);
-  req.setRequestHeader('Accept', 'application/json');
-  req.onreadystatechange = callback;
-  req.send(null);
-  console.log( "dbpediaComplete req sent!" );
-};
-
-// function installDbpediaComplete( inputElement) {
-//   function dbpedia_callback(aEvt) {
-//     if (req.readyState == 4) {
-//      console.log( "req.response " + req.response );
-//      var response= eval( '(' + req.responseText + ')' ); // TODO eval not secure!
-//      populate_pulldown_menu( element, response.results );
-//     };
-//   };
-//   console.log( "inputElement " + inputElement );
-//   console.log( "getElementsByName(inputElement " + document.getElementsByName(inputElement) );
-//   var element = document.getElementsByName(inputElement)[0];
-//   element.onkeyup = function() { dbpediaComplete( element, dbpedia_callback); };
-// };
-
+/** onkeyup callback on <input> tag */
 function onkeyupComplete( element ) {
-  function dbpedia_callback(aEvt) {
-    if (req.readyState == 4) {
-     console.log( "req.response length " + Object.keys(req.response).length );
-     var response= eval( '(' + req.responseText + ')' ); // TODO eval not secure!
-     populate_pulldown_menu( element, response.results );
-    };
-  };
   console.log( "onkeyupComplete " + this );
-  dbpediaComplete( element, dbpedia_callback);
 };
 
-/** populate pulldown menu with string responses, while keeping associated URI's */
-function populate_pulldown_menu( element, results ) {
-  var datalist = $(element.list);
-  datalist.empty()
-  console.log( "datalist " + datalist );
-  for (var i in results) {
-    var response = results[i];
-    // console.log( "response " + response );
-    console.log( "response label " + response.label );
-    // 	add an option tag to datalist with label=response.label and value=response.uri
-    datalist.append(
-      jQuery('<option/>', {
-        label: response.label + " - " + response.description,
-        value: response.uri } ))
-  }
+function addDBPediaLookup( inputElementId ) {
+      console.log( "addDBPediaLookup " + inputElementId );
+      console.log( "addDBPediaLookup " + " " + (typeof $(inputElementId)) );
+      // var inputElement = $(inputElementId);
+      var inputElement = document.getElementById(inputElementId.substring(1));
+      inputElement.hasLookup = true;
+      var topics = {}, // NOTE topics is populated but not used 
+          $topics = $(inputElementId).autocomplete({
+        autoFocus: true,
+       select: function( event, ui ) {
+            console.log( "Topic chosen label event " + (event) );
+            console.log( "Topic chosen label ui" + JSON.stringify(ui) );
+            console.log( "Topic chosen label " + ui.item.label +
+              ", topics[ui.label] " + topics[ui.item.label] +
+              ", topics[ui.value] " + topics[ui.item.value] +
+              ", ui.value " + ui.item.value );
+            console.log( "typeof inputElement " + typeof inputElement );
+            console.log( "  inputElement.value ", inputElement.value );
+       },
+        source: function(request, callback) {
+          $.ajax({
+            url: "http://lookup.dbpedia.org/api/search/PrefixSearch",
+            data: { MaxHits: resultsCount, QueryString: request.term },
+            dataType: "json",
+            success: function (response) {
+              callback(response.results.map(function (m) {
+                console.log( "response " + m );
+                topics[m.label] = m.uri;
+                return { "label": m.label + " - " + m.description, "value": m.uri }  // m.label;
+              }));
+            }
+          });
+        }
+      }).keyup(function (event) {
+        console.log( "Topic typed-0" );
+        var label = $topics.val();
+        if (label) {
+          console.log( "Topic typed " + label + " " + topics[label]);
+        }
+      });
 };
 
-function test_callback(aEvt) {
-  if (req.readyState == 4) {
-     if(req.status == 200) {
-      dump(req.responseText);
-     } else {
-      dump("Erreur pendant le chargement de la page.\n"); }
-  }
-};

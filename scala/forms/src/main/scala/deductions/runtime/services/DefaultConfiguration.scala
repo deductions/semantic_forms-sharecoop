@@ -16,18 +16,24 @@ trait DefaultConfiguration extends Configuration {
 
   override val relativeURIforCreatedResourcesByForm = "ldp/"
   override val relativeURIforCreatedResourcesByLDP = relativeURIforCreatedResourcesByForm
+  override val preferredURIPrefixes: Seq[String] = Seq("urn:av/")
 
   override def serverPort = {
     println("Default port from DefaultConfiguration")
     "9000"
   }
 
+  override val defaultReadTimeout = 4000
+  override val defaultConnectTimeout = 4000
+  override val httpHeadTimeout = 500
+
   /** vocabulary for form specifications */
   override val formVocabPrefix = "http://deductions-software.com/ontologies/forms.owl.ttl#"
 
   override val prefixAVontology = "http://www.assemblee-virtuelle.org/ontologies/v1.owl#"
 
-  override val needLoginForEditing: Boolean = false // true
+  override val needLoginForEditing: Boolean = // false //
+    true
   override val needLoginForDisplaying: Boolean = false
 
   override val recordUserActions: Boolean = true // false

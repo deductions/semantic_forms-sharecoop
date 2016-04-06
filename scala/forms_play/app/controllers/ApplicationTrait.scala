@@ -16,6 +16,9 @@ import views.MainXmlWithHead
 import deductions.runtime.services.CORS
 import deductions.runtime.services.DefaultConfiguration
 import play.api.Play
+import scala.util.Try
+import scala.util.Success
+import play.api.mvc.Call
 
 
 /** main controller */
@@ -62,16 +65,14 @@ trait ApplicationTrait extends Controller
       println(s"""displayURI: $request IP ${request.remoteAddress}, host ${request.host}
          displayURI headers ${request.headers}
          displayURI tags ${request.tags}
-         userid "$userid"
+         userid <$userid>
          formuri <$formuri>
-         """)
-      println(s"""displayURI: Edit "$Edit" """)
+         displayURI: Edit "$Edit" """)
       val lang = chooseLanguage(request)
       val title = labelForURITransaction(uri, lang)
       outputMainPage(
-        htmlForm(uri, blanknode, editable = Edit != "", lang, formuri),
+        htmlForm(uri, blanknode, editable = Edit != "", lang, formuri, graphURI=makeAbsoluteURIForSaving(userid)),
         lang, title=title )
-      // TODO record in TDB like timestamp & history: request.remoteAddress, request.host
     }
   }
 
@@ -83,7 +84,7 @@ trait ApplicationTrait extends Controller
       println( s"""form: request $request : "$Edit" formuri <$formuri> """)
       val lang = chooseLanguage(request)
       Ok(htmlFormElemJustFields(uri: String, hrefDisplayPrefix, blankNode,
-        editable = Edit != "", lang, formuri))
+        editable = Edit != "", lang, formuri, graphURI=makeAbsoluteURIForSaving(userid)))
         .as("text/html; charset=utf-8")
     }
   }
@@ -133,52 +134,73 @@ trait ApplicationTrait extends Controller
       val pageURI = uri
       val pageLabel = labelForURI(uri, lang)
       val userInfo = displayUser(userid, pageURI, pageLabel, lang)
-      println( s"userInfo $userInfo" )
+      println( s"userInfo $userInfo, userid $userid" )
        val content = htmlForm(
         uri, editable = true,
-        lang = chooseLanguage(request))
+        lang = chooseLanguage(request), graphURI=makeAbsoluteURIForSaving(userid))
       Ok( "<!DOCTYPE html>\n" + mainPage( content, userInfo, lang))
             .as("text/html; charset=utf-8").
         withHeaders("Access-Control-Allow-Origin" -> "*") // TODO dbpedia only
   }
 
+  /** */
   def saveAction() =
-    //  {    Action { implicit request =>
     withUser {
       implicit userid =>
         implicit request =>
           val lang = chooseLanguage(request)
-          outputMainPage(save(request), lang)
+//          outputMainPage(save(request, userid, graphURI=makeAbsoluteURIForSaving(userid)), lang)
+          val uri = saveOnly(request, userid, graphURI=makeAbsoluteURIForSaving(userid))
+          println(s"saveAction: uri $uri")
+          val call = routes.Application.displayURI(uri)
+          Redirect(call)
+          /* TODO */
+          // recordForHistory( userid, request.remoteAddress, request.host )
     }
 
-  def save(request: Request[_]): NodeSeq = {
-      val body = request.body
-      body match {
-        case form: AnyContentAsFormUrlEncoded =>
-          val lang = chooseLanguage(request)
-          val map = form.data
-          println("Global.save: " + body.getClass + ", map " + map)
-          try {
-            saveForm(map, lang )
-          } catch {
-            case t: Throwable => println("Exception in saveTriples: " + t)
-            // TODO show Exception to user
-          }
-          val uriOption = map.getOrElse("uri", Seq()).headOption
-          println("Global.save: uriOption " + uriOption)
-          uriOption match {
-            case Some(url1) => htmlForm(
-              URLDecoder.decode(url1, "utf-8"),
-              editable = false,
-              lang = lang )
-            case _ => <p>Save: not normal: { uriOption }</p>
-          }
-        case _ => <p>Save: not normal: { getClass() }</p>
-      }
+  private def saveOnly(request: Request[_], userid: String, graphURI: String = ""): String = {
+    val body = request.body
+    body match {
+      case form: AnyContentAsFormUrlEncoded =>
+        val lang = chooseLanguage(request)
+        val map = form.data
+        println(s"ApplicationTrait.save: ${body.getClass}, map $map")
+        // cf http://danielwestheide.com/blog/2012/12/26/the-neophytes-guide-to-scala-part-6-error-handling-with-try.html
+        val subjectUriTryOption = Try {
+          saveForm(map, lang, userid, graphURI)
+        }
+        subjectUriTryOption match {
+            case Success(Some(url1)) => url1
+            case _ => ""
+        }
+    }
   }
+  
+//  /** UNUSED */
+//  private def save(request: Request[_], userid: String, graphURI: String = "" ): NodeSeq = {
+//      val body = request.body
+//      body match {
+//        case form: AnyContentAsFormUrlEncoded =>
+//          val lang = chooseLanguage(request)
+//          val map = form.data
+//          println(s"ApplicationTrait.save: ${body.getClass}, map $map")
+//          // cf http://danielwestheide.com/blog/2012/12/26/the-neophytes-guide-to-scala-part-6-error-handling-with-try.html
+//          val subjectUriTryOption = Try {
+//            saveForm( map, lang, userid, graphURI )
+//          }
+//          println(s"ApplicationTrait.save: uriOption $subjectUriTryOption, userid $userid")
+//          subjectUriTryOption match {
+//            case Success(Some(url1)) =>
+//              htmlForm( URLDecoder.decode(url1, "utf-8"),
+//              editable = false,
+//              lang = lang )
+//            case _ => <p>Save: not normal: { subjectUriTryOption }</p>
+//          }
+//        case _ => <p>Save: not normal: { getClass() }</p>
+//      }
+//  }
 
   def createAction() =
-    //  {  Action { implicit request =>
     withUser {
       implicit userid =>
         implicit request =>
@@ -192,9 +214,13 @@ trait ApplicationTrait extends Controller
           val lang = chooseLanguage(request)
           outputMainPage(
             create(uri, chooseLanguage(request),
-              formSpecURI), lang)
+              formSpecURI, makeAbsoluteURIForSaving(userid)
+              ),
+            lang)
     }
 
+  def makeAbsoluteURIForSaving(userid: String): String = userid 
+    
   //  def download(url: String): Action[_] = {
   //    Action { Ok(downloadAsString(url)).as("text/turtle; charset=utf-8") }
   //  }
@@ -276,7 +302,7 @@ trait ApplicationTrait extends Controller
           val acceptsTurtle = Accepting("text/turtle")
           val turtle = acceptsTurtle.mimeType
           val accepts = Accepting(acceptedTypes.headOption.getOrElse(turtle).toString())
-          val r = ldpGET(uri, request.rawQueryString, accepts.mimeType)
+          val r = ldpGET(uri, request.path, accepts.mimeType)
           println("LDP: GET: result " + r)
           val contentType = accepts.mimeType + "; charset=utf-8"
           println(s"contentType $contentType")
@@ -285,7 +311,10 @@ trait ApplicationTrait extends Controller
         }
     }
 
-  /** TODO: this is blocking code !!! */
+  /** TODO:
+   * - maybe the stored named graph should be user specific
+   * - this is blocking code !!!
+   */
   def ldpPOSTAction(uri: String) =
     //  { Action { implicit request =>
     withUser {

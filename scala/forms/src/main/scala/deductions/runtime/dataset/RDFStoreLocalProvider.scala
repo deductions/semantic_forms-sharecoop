@@ -39,10 +39,16 @@ trait RDFStoreLocalProvider[Rdf <: RDF, DATASET] extends RDFOPerationsDB[Rdf, DA
   /** For application data (timestamps, URI types, ...),
    *  sets a default location for the Jena TDB store directory : TDB2/ */
   val databaseLocation2 = "TDB2"
+  val databaseLocation3 = "TDB3"
   lazy val dataset2: DATASET = createDatabase(databaseLocation2)
+  lazy val dataset3: DATASET = createDatabase(databaseLocation3)
+  // TODO datasetForLabels
   
   /** List the names of graphs */
   def listNames(ds: DATASET = dataset): Iterator[String]
+  
+  /** make an MGraph from a Dataset */
+  def makeMGraph( graphURI: Rdf#URI, ds: DATASET = dataset): Rdf#MGraph
 }
 
 trait RDFStoreLocalUserManagement[Rdf <: RDF, DATASET] extends RDFStoreLocalProvider[Rdf, DATASET] {
@@ -50,9 +56,11 @@ trait RDFStoreLocalUserManagement[Rdf <: RDF, DATASET] extends RDFStoreLocalProv
   /**
    * NOTE:
    *  - no need of a transaction here, as getting Union Graph is anyway part of a transaction
-   *  TODO : want to put User Management in another database
+   *  TODO : put User Management in another database
    */
-  def passwordsGraph: Rdf#Graph = {
-    rdfStore.getGraph(dataset, URI("urn:users")).get
+  def passwordsGraph: Rdf#MGraph = {
+    makeMGraph( URI("urn:users")
+        , dataset3 
+        )
   }
 }

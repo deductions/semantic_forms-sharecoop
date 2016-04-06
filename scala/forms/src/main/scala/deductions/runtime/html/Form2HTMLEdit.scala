@@ -70,7 +70,10 @@ trait Form2HTMLEdit[NODE, URI <: NODE]
             onkeyup={if (lookup(r)) "onkeyupComplete(this);" else null}
             size={inputSize.toString()}
 						dropzone="copy">
-          </input> 
+          </input>
+            <script type="text/javascript" >
+              addDBPediaLookup('#{ makeHTML_Id(r) }'); 
+            </script>
 					</div>
 				else new Text("") // format: ON
       ,

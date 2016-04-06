@@ -118,13 +118,15 @@ trait ApplicationFacadeImpl[Rdf <: RDF, DATASET]
 
   /** Add behavior (manageBlankNodesReload, Exception management) and
    *  title and links on top of the form
-   *  to naked form from tableView
+   *  to naked form from TableView
    *  TRANSACTIONAL */
   def htmlForm(uri0: String, blankNode: String = "",
                editable: Boolean = false,
-               lang: String = "en", formuri: String=""): NodeSeq = {
+               lang: String = "en", formuri: String="",
+               graphURI: String = ""): NodeSeq = {
     Logger.getRootLogger().info(
-        s"""ApplicationFacadeImpl.htmlForm URI $uri0 blankNode "$blankNode" editable=$editable lang=$lang """)
+        s"""ApplicationFacadeImpl.htmlForm URI $uri0 blankNode "$blankNode"
+              editable=$editable lang=$lang graphURI <$graphURI>""")
     val uri = uri0.trim()
     if (uri != null && uri != "")
       try {
@@ -152,7 +154,7 @@ trait ApplicationFacadeImpl[Rdf <: RDF, DATASET]
             titleEditDisplayDownloadLinks(uri, lang),
             <div>{status}</div>,
             tableView.htmlFormElemRaw(uri, graph, hrefDisplayPrefix, blankNode, editable = editable,
-              lang = lang, formuri=formuri)).flatMap { identity }
+              lang = lang, formuri=formuri, graphURI=graphURI)).flatMap { identity }
         })
         res.get
       } catch {
@@ -278,20 +280,22 @@ trait ApplicationFacadeImpl[Rdf <: RDF, DATASET]
     htmlForm(url, editable = true)
   }
 
-  def saveForm(request: Map[String, Seq[String]], lang: String = "") // (implicit allNamedGraphs: Rdf#Graph)
-  : NodeSeq = {
-    println("ApplicationFacade.save: map " + request)
-    try {
+  /** save Form data in TDB
+   *  @return main subject URI like [[FormSaver.saveTriples]] */
+  def saveForm(request: Map[String, Seq[String]], lang: String = "",
+      userid: String, graphURI: String = "")
+  : Option[String] = {
+    println(s"ApplicationFacadeImpl.save: map :$request, userid <$userid>")
+    val mainSubjectURI = try {
+      implicit val userURI: String = userid
       fs.saveTriples(request)
-      ("noUserURI") // TODO get user ID when login activated
     } catch {
       case t: Throwable =>
         println("Exception in saveTriples: " + t)
-        // show Exception to user:
-        throw t
+        throw t  // show Exception to user
     }
     val uriOption = (request).getOrElse("uri", Seq()).headOption
-    println("Global.save: uriOption " + uriOption)
+    println(s"ApplicationFacadeImpl.save: uriOption $uriOption, graphURI $graphURI")
     uriOption match {
       case Some(url1) =>
       val uri = URLDecoder.decode(url1, "utf-8")
@@ -299,11 +303,10 @@ trait ApplicationFacadeImpl[Rdf <: RDF, DATASET]
         replaceInstanceLabel( URI(uri), allNamedGraph, // TODO reuse allNamedGraph
             lang )       
     	})
-        htmlForm( uri,
-        editable = false,
-        lang = lang)
-      case _ => <p>Save: not normal: { uriOption }</p>
+    	logger.info( s"Save: normal! $uriOption" )
+      case _ => logger.info( s"Save:  NOT normal! $uriOption" )
     }
+    mainSubjectURI
   }
 
   def sparqlConstructQuery(query: String, lang: String = "en"): Elem = {

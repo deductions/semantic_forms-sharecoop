@@ -10,6 +10,7 @@ import org.w3.banana.RDFPrefix
 import deductions.runtime.utils.RDFHelpers
 import deductions.runtime.dataset.RDFOPerationsDB
 
+/** TODO move to package data_cleaning */
 trait BlankNodeCleaner[Rdf <: RDF, DATASET]
 extends BlankNodeCleanerBatch[Rdf, DATASET]
 with BlankNodeCleanerIncremental[Rdf, DATASET]
@@ -97,7 +98,7 @@ extends BlankNodeCleanerBase[Rdf, DATASET] {
   import rdfStore.graphStoreSyntax._
   import rdfStore.transactorSyntax._
 
-  private lazy val rdf = RDFPrefix[Rdf]
+//  private lazy val rdf = RDFPrefix[Rdf]
 
   /**
    * Batch program to clean Unreachable Blank Node Sub-Graphs;

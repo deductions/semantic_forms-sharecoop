@@ -71,29 +71,31 @@ with SPARQLHelpers[Rdf, DATASET] {
         : List[Seq[Rdf#Node]] = {
     val query = s"""
       PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-      SELECT ?SUBJECT (max(?TS) as ?TIME ) (count(?O) AS ?COUNT)
+      SELECT ?SUBJECT (max(?TS) as ?TIME ) (count(?O) AS ?COUNT) ?USER
       WHERE {
-        GRAPH <urn:semantic_forms/metadataGraph> {
-          ?GR <urn:timestamp> ?TS
+        GRAPH <$metadataGraph> {
+          ?GR <$timestampURI> ?TS ;
+              <$userPredURI> ?USER
               # ; <urn:ip> ?IP ; <urn:action> ?ACTION
               .
         }
         GRAPH ?GR {
          ?SUBJECT ?P ?O . } }
-      GROUP BY ?SUBJECT
+      GROUP BY ?SUBJECT ?USER
       # ORDER BY ASC(?TS)
       # ORDER BY DESC(xsd:nonNegativeInteger(?TS))
       ORDER BY DESC(xsd:integer(?TS))
     """
     println("getMetadata: query " + query)
-    val res = sparqlSelectQueryVariables( query, Seq("SUBJECT", "TIME", "COUNT"), dataset2 )
+    val res = sparqlSelectQueryVariables( query,
+        Seq("SUBJECT", "TIME", "COUNT", "USER"), dataset2 )
     println("getMetadata: res " + res)
     res
   }
 
 
   /** get Time Series from accumulated values with timestamp;
-   *  used only in https://github.com/jmvanel/corporate_risk
+   *  used only in https://github.com/jmvanel/corporate_risk and in test
    *  @return a Map from label to a seq of time & value pairs;
    *  the time is a Unix time obtained by Date.getTime,
    *  the value is a double;
