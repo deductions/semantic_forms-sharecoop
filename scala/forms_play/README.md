@@ -10,9 +10,11 @@ Pour mettre à jour par rapport à semantic\_forms :
 
 https://help.github.com/articles/syncing-a-fork/
 
-Et il faut d'abord faire une fois pour toutes à chaque répertoire issu d'un git clone:
-https://help.github.com/articles/configuring-a-remote-for-a-fork/
+Et il faut d'abord faire ceci une fois pour toutes à chaque répertoire issu d'un git clone:
+
 	git remote add upstream https://github.com/jmvanel/semantic_forms.git
+
+cf https://help.github.com/articles/configuring-a-remote-for-a-fork/
 
 ## Quoi modifier pour les parties statiques de pages
 
