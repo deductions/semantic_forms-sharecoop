@@ -19,6 +19,7 @@ import play.api.Play
 import scala.util.Try
 import scala.util.Success
 import play.api.mvc.Call
+import views.MainXML_ChequeSolidaire
 
 
 /** main controller */
@@ -52,6 +53,18 @@ trait ApplicationTrait extends Controller
       val lang = chooseLanguageObject(request).language
       val userInfo = displayUser(userid, "", "", lang)
       Ok( "<!DOCTYPE html>\n" + mainPage(<p>...</p>, userInfo, lang))
+            .as("text/html; charset=utf-8")
+    }
+  }
+
+  def index2() =
+        withUser {
+    implicit userid =>
+    implicit request => {
+      val lang = chooseLanguageObject(request).language
+      val userInfo = displayUser(userid, "", "", lang)
+      val page = new MainXML_ChequeSolidaire with DefaultConfiguration {}
+      Ok( "<!DOCTYPE html>\n" + page.mainPage(<p>...</p>, userInfo, lang))
             .as("text/html; charset=utf-8")
     }
   }

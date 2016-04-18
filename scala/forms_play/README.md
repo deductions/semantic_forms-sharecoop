@@ -355,7 +355,7 @@ https://help.github.com/articles/configuring-a-remote-for-a-fork/
 	git remote add upstream https://github.com/jmvanel/semantic_forms.git
 
 An exemple of such a project is:
-[https://github.com/deductions/semantic\_forms-sharecop](https://github.com/deductions/semantic_forms-sharecop)
+[https://github.com/deductions/semantic\_forms-sharecoop](https://github.com/deductions/semantic_forms-sharecop)
 
 See also:
 [semantic\_forms wiki: Application-development-manual](https://github.com/jmvanel/semantic_forms/wiki/Application-development-manual)

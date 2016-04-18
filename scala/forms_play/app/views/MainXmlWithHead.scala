@@ -11,10 +11,7 @@ trait MainXmlWithHead extends MainXml {
 	<div class="container">
 		<div class="row">
 			<h3>Bienvenue à Share.Coop</h3>
-			Participez à Share.Coop	et recevez un don en 
-			<a href="http://chequesolidaire.org">Chèque solidaire</a> !
-			<br/>
-			Jeu gratuit et sans engagement
+			Participez à Share.Coop !
 			<br/>
 			<a href="http://share.coop">Share.Coop</a>
 		</div>
@@ -24,7 +21,7 @@ trait MainXmlWithHead extends MainXml {
 
   /** bas de page **/
   override def pageBottom = {
-    Seq( <div><a href="???">Contact</a></div> , super.linkToToolsPage )   
+    Seq( <div><a href="mailto:gmail@7738.net">Contact</a></div> , super.linkToToolsPage )   
   }
 
   /** HTML head */
