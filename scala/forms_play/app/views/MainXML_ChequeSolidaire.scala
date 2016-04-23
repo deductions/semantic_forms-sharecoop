@@ -9,8 +9,6 @@ trait MainXML_ChequeSolidaire extends MainXmlWithHead {
 			Participez à Chèque solidaire	et recevez un don en 
 			<a href="http://chequesolidaire.org">Chèque solidaire</a> !
 			<br/>
-			<!-- Jeu gratuit et sans engagement -->
-			<br/>
 		</div>
     Créer votre compte 
     { creationButton( prefix + "Prospect", "Créer") }
