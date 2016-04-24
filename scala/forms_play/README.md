@@ -6,15 +6,24 @@ Play! framework implementations
 
 Ce fork qui ne sera jamais fusionné (pas de Pull Request). C'est un moyen de pallier le fait qu'on ne peut pas (AFAIK) redéfinir des éléments d'un projet Play à partir d'un projet indépendant.
 
-Pour mettre à jour par rapport à semantic\_forms :
+*Pour mettre à jour par rapport à semantic\_forms*
 
-https://help.github.com/articles/syncing-a-fork/
-
-Et il faut d'abord faire ceci une fois pour toutes à chaque répertoire issu d'un git clone:
+Il faut d'abord faire ceci une fois pour toutes à chaque répertoire issu d'un git clone:
 
 	git remote add upstream https://github.com/jmvanel/semantic_forms.git
 
 cf https://help.github.com/articles/configuring-a-remote-for-a-fork/
+
+Ensuite à chaque mise à jour:
+https://help.github.com/articles/syncing-a-fork/
+
+C'est à dire:
+```
+git fetch upstream
+git checkout master
+git merge upstream/master
+```
+
 
 ## Quoi modifier pour les parties statiques de pages
 

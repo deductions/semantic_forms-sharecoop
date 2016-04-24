@@ -3,9 +3,11 @@ package views
 import controllers._
 import deductions.runtime.html.MainXml
 
+/** main page for ShareCoop */
 trait MainXmlWithHead extends MainXml {
 
   val prefix = "urn:ShareCoop/vocab#"
+  val prefix_sform = "urn:ShareCoop/forms#"
 
   override def mainPageHeader(implicit lang: String) =
 	<div class="container">
@@ -16,7 +18,8 @@ trait MainXmlWithHead extends MainXml {
 			<a href="http://share.coop">Share.Coop</a>
 		</div>
     Créer votre compte Share.Coop
-    { creationButton( prefix + "Prospect", "Créer") }
+    { creationButton( "http://xmlns.com/foaf/0.1/Person", "Créer",
+        s"${prefix_sform}exchangePersonForm" ) }
   </div>
 
   /** bas de page **/

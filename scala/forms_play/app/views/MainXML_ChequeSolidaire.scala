@@ -1,5 +1,6 @@
 package views
 
+/** main page for Chèque Solidaire */
 trait MainXML_ChequeSolidaire extends MainXmlWithHead {
   
  override def mainPageHeader(implicit lang: String) =
@@ -11,6 +12,6 @@ trait MainXML_ChequeSolidaire extends MainXmlWithHead {
 			<br/>
 		</div>
     Créer votre compte 
-    { creationButton( prefix + "Prospect", "Créer") }
+    { creationButton( s"${prefix}Prospect", "Créer") }
   </div>
 }
