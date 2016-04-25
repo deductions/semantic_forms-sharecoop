@@ -28,11 +28,16 @@ git merge upstream/master --verbose
 ## Quoi modifier pour les parties statiques de pages
 
 Haut et bas de page:
-[MainXmlWithHead.scala](app/views/MainXmlWithHead.scala)
+ShareCoop : [MainXmlWithHead.scala](app/views/MainXmlWithHead.scala)
+[MainXML_ChequeSolidaire.scala](app/views/MainXML_ChequeSolidaire.scala)
 
-L'icône pour l'onglet:
+L'icône pour l'onglet: à changer !!!!!!!!!!!!!!!!!!!!
 [favicon.png](public/images/favicon.png)
 
+Le texte de présentation de Share.Coop (lien bas de page):
+[sharecoop.html](public/sharecoop.html)
+
+Le texte de présentation de [cheque_solidaire.html](public/cheque_solidaire.html)
 
 # Introduction
 Here is a web application with Play! framework around the [form generator](../forms/README.md) that does:
@@ -58,7 +63,7 @@ Some people speak of "triple store", or "graph database", or "triple database", 
 - install dependencies:
   - Java 8 ,
   - [SBT](http://www.scala-sbt.org/) or [Typesafe Activator](http://typesafe.com/platform/getstarted) .
-Then SBT or Activator will download the rest.
+Then SBT or Activator will dowload the rest.
 - download the source from [Banana-RDf fork on github](https://github.com/deductions/banana-rdf) (temporary, until my Pull Request in Banana-RDF is accepted)
   - build this project with SBT or Activator: change directory to `banana-rdf` ; type in the activator console : `publishLocal`
 - download the source from [semantic\_forms on github](https://github.com/jmvanel/semantic_forms/)
