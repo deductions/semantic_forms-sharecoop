@@ -19,9 +19,9 @@ https://help.github.com/articles/syncing-a-fork/
 
 C'est à dire:
 ```
-git fetch upstream
+git fetch upstream --verbose
 git checkout master
-git merge upstream/master
+git merge upstream/master --verbose
 ```
 
 

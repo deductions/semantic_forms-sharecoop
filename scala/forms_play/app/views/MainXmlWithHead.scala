@@ -24,7 +24,9 @@ trait MainXmlWithHead extends MainXml {
 
   /** bas de page **/
   override def pageBottom = {
-    Seq( <div><a href="mailto:gmail@7738.net">Contact</a></div> , super.linkToToolsPage )   
+    Seq( <div><a href="mailto:gmail@7738.net">Contact</a></div> ,
+        <a href="assets/sharecoop.html">Qu'est Share.Coop?</a> ,
+        super.linkToToolsPage )
   }
 
   /** HTML head */
